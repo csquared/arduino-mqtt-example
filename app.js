@@ -9,7 +9,11 @@ var express = require('express')
   , http = require('http')
   , path = require('path');
 
+// create app, server, and io
 var app = express();
+var server = http.createServer(app);
+var io = require('socket.io').listen(server);
+
 
 // all environments
 app.set('port', process.env.PORT || 3000);
@@ -22,24 +26,18 @@ app.use(express.methodOverride());
 app.use(app.router);
 app.use(express.static(path.join(__dirname, 'public')));
 
+// configure socket.io
+io.set("polling duration", process.env.POLLING_DURATION || 1);
+
 // development only
 if ('development' == app.get('env')) {
   app.use(express.errorHandler());
 }
 
+// routes
 app.get('/', routes.index);
 
-//socket.io bind
-var server = http.createServer(app);
-var io = require('socket.io').listen(server);
-
-// listen
-server.listen(app.get('port'), function(){
-  console.log('Express server listening on port ' + app.get('port'));
-});
-
-
-//setup mqtt
+// setup mqtt
 var mqtt = require('mqtt'), url = require('url');
 var mqtt_url = url.parse(process.env.CLOUDMQTT_URL || 'mqtt://localhost:1883');
 var auth = (mqtt_url.auth || ':').split(':');
@@ -62,3 +60,9 @@ mqtt_client.on('connect', function() { // When connected
     });
   });
 });
+
+// listen
+server.listen(app.get('port'), function(){
+  console.log('Express server listening on port ' + app.get('port'));
+});
+
