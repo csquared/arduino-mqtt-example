@@ -50,7 +50,7 @@ var mqtt_client = mqtt.createClient(mqtt_url.port, mqtt_url.hostname, {
 });
 
 mqtt_client.on('connect', function() { // When connected
-  console.log("connected");
+  console.log("mqtt client connected");
 
   // subscribe to a topic
   mqtt_client.subscribe('led', function() {
