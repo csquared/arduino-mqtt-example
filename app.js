@@ -28,6 +28,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // configure socket.io
 io.set("polling duration", process.env.POLLING_DURATION || 1);
+io.set("transports", process.env.TRANSPORTS.split(','));
 
 // development only
 if ('development' == app.get('env')) {
