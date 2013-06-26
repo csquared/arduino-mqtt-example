@@ -30,16 +30,18 @@ if ('development' == app.get('env')) {
 app.get('/', routes.index);
 app.get('/users', user.list);
 
+//socket.io bind
 var server = http.createServer(app);
 var io = require('socket.io').listen(server);
 
+// listen
 server.listen(app.get('port'), function(){
   console.log('Express server listening on port ' + app.get('port'));
 });
 
 
+//setup mqtt
 var mqtt = require('mqtt'), url = require('url');
-// Parse
 var mqtt_url = url.parse(process.env.CLOUDMQTT_URL || 'mqtt://localhost:1883');
 var auth = (mqtt_url.auth || ':').split(':');
 
@@ -54,7 +56,7 @@ mqtt_client.on('connect', function() { // When connected
 
   // subscribe to a topic
   mqtt_client.subscribe('led', function() {
-    // when a message arrives, do something with it
+    // when a message arrives, send it out to the websockets
     mqtt_client.on('message', function(topic, message, packet) {
       console.log("Received '" + message + "' on '" + topic + "'");
       io.sockets.emit('mqtt_message', topic, message, packet);
